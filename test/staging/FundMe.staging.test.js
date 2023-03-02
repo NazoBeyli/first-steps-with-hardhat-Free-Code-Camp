@@ -1,31 +1,28 @@
-const { assert } = require("chai")
-const { network, ethers, getNamedAccounts } = require("hardhat")
+// diese tests werden gemacht BEVOR WIR AUF EINER MAINNET (ETH BITCOIN XRP etc) deployen
+// hier sicherstellen das ALLES RICHTIG LÄUFT
+//tests sehen genauso aus wie auf localtest server
+
+const { getNamedAccounts, ethers, network } = require("hardhat")
+const { assert, expect } = require("chai")
 const { developmentChains } = require("../../helper-hardhat-config")
 
 developmentChains.includes(network.name)
     ? describe.skip
-    : describe("FundMe Staging Tests", function () {
+    : describe("FundMe", async function() {
           let deployer
-          let fundMe
-          const sendValue = ethers.utils.parseEther("0.1")
-          beforeEach(async () => {
+          let fundme
+          const wertgesendet = ethers.utils.parseEther("0.04")
+
+          beforeEach(async function() {
               deployer = (await getNamedAccounts()).deployer
-              fundMe = await ethers.getContract("FundMe", deployer)
+              fundme = await ethers.getContract("BitteSpenden", deployer)
           })
-
-          it("allows people to fund and withdraw", async function () {
-              const fundTxResponse = await fundMe.fund({ value: sendValue })
-              await fundTxResponse.wait(1)
-              const withdrawTxResponse = await fundMe.withdraw()
-              await withdrawTxResponse.wait(1)
-
-              const endingFundMeBalance = await fundMe.provider.getBalance(
-                  fundMe.address
+          it("erlaubt leute zu spenden und abzuheben", async function() {
+              await fundme.spenden({ value: wertgesendet })
+              await fundme.abzuheben()
+              const endBalance = await fundme.provider.getBalance(
+                  fundme.address
               )
-              console.log(
-                  endingFundMeBalance.toString() +
-                      " should equal 0, running assert equal..."
-              )
-              assert.equal(endingFundMeBalance.toString(), "0")
+              assert.equal(endBalance.toString(), "0")
           })
       })

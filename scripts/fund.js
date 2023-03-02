@@ -1,3 +1,27 @@
+// ein scirpt welches erlaubt meinem CODE zu interagieren/
+//nützlich in der zukunft, wenn ich eines meiner contracts funden/reinspenden möchte
+
+const { getnamedAccounts, ethers } = require("hardhat")
+
+async function main() {
+    const { deployer } = await getNamedAccounts()
+    const fundMe = await ethers.getContract("BitteSpenden", deployer)
+    console.log("Funding Contract...")
+    const transactionResponse = await fundMe.spenden({
+        value: ethers.utils.parseEther("100")
+    })
+    await transactionResponse.wait(1)
+    console.log("FUNDED")
+}
+
+main()
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error)
+        process.exit(1)
+    })
+
+/*
 const { ethers, getNamedAccounts } = require("hardhat")
 
 async function main() {
@@ -18,3 +42,4 @@ main()
     console.error(error)
     process.exit(1)
   })
+*/
